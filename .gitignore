@@ -1,5 +1,6 @@
 # Ignore data folder containing experiment results
 data/
+video_stimuli/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
