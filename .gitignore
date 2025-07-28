@@ -1,6 +1,7 @@
 # Ignore data folder containing experiment results
 data/
 video_stimuli/
+numerosityComp_munther/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -13,6 +14,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+psychopy_env/
 build/
 develop-eggs/
 dist/

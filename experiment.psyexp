@@ -54,7 +54,7 @@
     <Param val="127.0.0.1" valType="str" updates="None" name="gpAddress"/>
     <Param val="4242" valType="num" updates="None" name="gpPort"/>
     <Param val="ioHub" valType="str" updates="None" name="keyboardBackend"/>
-    <Param val="info" valType="code" updates="None" name="logging level"/>
+    <Param val="debug" valType="code" updates="None" name="logging level"/>
     <Param val="True" valType="bool" updates="None" name="measureFrameRate"/>
     <Param val="('MIDDLE_BUTTON',)" valType="list" updates="None" name="mgBlink"/>
     <Param val="CONTINUOUS" valType="str" updates="None" name="mgMove"/>
@@ -114,7 +114,7 @@
         <Param val="None" valType="color" updates="constant" name="fillColor"/>
         <Param val="False" valType="bool" updates="constant" name="flipHoriz"/>
         <Param val="False" valType="bool" updates="constant" name="flipVert"/>
-        <Param val="Segoe UI" valType="str" updates="constant" name="font"/>
+        <Param val="Arial" valType="str" updates="constant" name="font"/>
         <Param val="False" valType="bool" updates="constant" name="italic"/>
         <Param val="LTR" valType="str" updates="None" name="languageStyle"/>
         <Param val="0.05" valType="num" updates="constant" name="letterHeight"/>
@@ -139,23 +139,6 @@
         <Param val="from exp settings" valType="str" updates="None" name="units"/>
         <Param val="" valType="code" updates="None" name="validator"/>
       </TextboxComponent>
-      <CodeComponent name="code" plugin="None">
-        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="rep_number = 0&amp;#10;&amp;#10;# MAKE SURE THIS CODE BLOCK IS IN THE RIGHT AREA (it should be a part of the loop actually)" valType="extendedCode" updates="constant" name="Begin Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="# In Begin Routine tab (or at the start of the loop)&amp;#10;import pandas as pd&amp;#10;conditions = pd.read_csv(fam_trial_loop.conditionsFile)&amp;#10;&amp;#10;# Filter rows based on repetition&amp;#10;if rep_number == 0:&amp;#10;    # choose high-certainty object: apple or cup&amp;#10;    filtered_conditions = conditions[conditions['is_high_confidence_object'] == 1]&amp;#10;else:&amp;#10;    # choose low-certainty object&amp;#10;    filtered_conditions = conditions[conditions['is_high_confidence_object'] == 0]&amp;#10;&amp;#10;fam_trial_loop.conditions = filtered_conditions.to_dict('records')&amp;#10;fam_trial_loop.conditionsFile = None  # Clear the file reference to use the filtered conditions&amp;#10;&amp;#10;rep_number += 1" valType="extendedCode" updates="constant" name="Begin Routine"/>
-        <Param val="Py" valType="str" updates="None" name="Code Type"/>
-        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
-        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
-        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
-        <Param val="False" valType="bool" updates="None" name="disabled"/>
-        <Param val="code" valType="code" updates="None" name="name"/>
-      </CodeComponent>
     </Routine>
     <Routine name="fam">
       <RoutineSettingsComponent name="fam" plugin="None">
@@ -216,6 +199,23 @@
         <Param val="from exp settings" valType="str" updates="None" name="units"/>
         <Param val="" valType="code" updates="None" name="validator"/>
       </TextboxComponent>
+      <CodeComponent name="assign_confidence_object" plugin="None">
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="rep_number = 0" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="import pandas as pd&amp;#10;&amp;#10;# Convert trialList to a pandas DataFrame&amp;#10;conditions = pd.DataFrame(fam_trial_loop.trialList)&amp;#10;&amp;#10;# Filter rows based on repetition&amp;#10;if rep_number == 0:&amp;#10;    # First repetition: choose high-certainty objects (apple or cup)&amp;#10;    filtered_conditions = conditions[conditions['is_high_confidence_object'] == 1]&amp;#10;#    print(f'Filtered Conditions 1: {filtered_conditions}')&amp;#10;else:&amp;#10;    # Second repetition: choose low-certainty objects (nonsense1 or nonsense2)&amp;#10;    filtered_conditions = conditions[conditions['is_high_confidence_object'] == 0]&amp;#10;#    print(f'Filtered Conditions 2: {filtered_conditions}')&amp;#10;&amp;#10;# Update the loop's trialList with the filtered conditions&amp;#10;fam_trial_loop.trialList = filtered_conditions.to_dict('records')&amp;#10;#print(f'Updated trial list: {fam_trial_loop.trialList}')&amp;#10;&amp;#10;print(f&quot;Current video: {fam_trial_loop.thisTrial['fam_video_filename']}&quot;)&amp;#10;&amp;#10;# Increment repetition counter&amp;#10;rep_number += 1" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="Py" valType="str" updates="None" name="Code Type"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="assign_confidence_object" valType="code" updates="None" name="name"/>
+      </CodeComponent>
       <MovieComponent name="fam_clip" plugin="None">
         <Param val="False" valType="bool" updates="None" name="No audio"/>
         <Param val="center" valType="str" updates="constant" name="anchor"/>
@@ -223,7 +223,7 @@
         <Param val="1" valType="num" updates="constant" name="contrast"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="25" valType="code" updates="None" name="durationEstim"/>
-        <Param val="False" valType="bool" updates="constant" name="forceEndRoutine"/>
+        <Param val="True" valType="bool" updates="constant" name="forceEndRoutine"/>
         <Param val="False" valType="bool" updates="None" name="loop"/>
         <Param val="$fam_video_filename" valType="file" updates="set every repeat" name="movie"/>
         <Param val="fam_clip" valType="code" updates="None" name="name"/>
@@ -332,13 +332,12 @@
       <Param name="endPoints" updates="None" val="[0, 1]" valType="num"/>
       <Param name="isTrials" updates="None" val="True" valType="bool"/>
       <Param name="loopType" updates="None" val="random" valType="str"/>
-      <Param name="nReps" updates="None" val="1" valType="num"/>
+      <Param name="nReps" updates="None" val="2" valType="num"/>
       <Param name="name" updates="None" val="fam_trial_loop" valType="code"/>
       <Param name="random seed" updates="None" val="" valType="code"/>
     </LoopInitiator>
     <Routine name="fam"/>
     <LoopTerminator name="fam_trial_loop"/>
-    <Routine name="test"/>
     <Routine name="thanks"/>
   </Flow>
 </PsychoPy2experiment>

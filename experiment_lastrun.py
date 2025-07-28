@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v2024.2.4),
-    on Tue Jul 22 14:21:22 2025
+    on Fri Jul 25 20:45:17 2025
 If you publish work using this script the most relevant publication is:
 
     Peirce J, Gray JR, Simpson S, MacAskill M, Höchenberger R, Sogo H, Kastman E, Lindeløv JK. (2019) 
@@ -165,7 +165,7 @@ def setupLogging(filename):
         )
     else:
         logFile.setLevel(
-            logging.getLevel('info')
+            logging.getLevel('debug')
         )
     
     return logFile
@@ -360,7 +360,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     
     # --- Initialize components for Routine "cover_story" ---
     cover_story_text = visual.TextBox2(
-         win, text='“Hello XYZ (say the name of the child)! Today, we will play a very interesting game in which there are two puppets! The puppets are the Lady Bird (flashes the character’s picture) and the Monkey (flashes the respective picture). They love playing hide-n-seek games with their toys. The Lady Bird always hides a toy and goes away. After she goes away, the Monkey comes up and tries to look for the toy. In the game, you will help the monkey in finding out where the toy is hidden.” ', placeholder='Type here...', font='Segoe UI',
+         win, text='“Hello XYZ (say the name of the child)! Today, we will play a very interesting game in which there are two puppets! The puppets are the Lady Bird (flashes the character’s picture) and the Monkey (flashes the respective picture). They love playing hide-n-seek games with their toys. The Lady Bird always hides a toy and goes away. After she goes away, the Monkey comes up and tries to look for the toy. In the game, you will help the monkey in finding out where the toy is hidden.” ', placeholder='Type here...', font='Arial',
          ori=0.0, pos=(0, 0), draggable=False,      letterHeight=0.05,
          size=(0.5, 0.5), borderWidth=2.0,
          color='white', colorSpace='rgb',
@@ -393,16 +393,16 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
          name='fam_text',
          depth=0, autoLog=True,
     )
+    # Run 'Begin Experiment' code from assign_confidence_object
+    rep_number = 0
     fam_clip = visual.MovieStim(
         win, name='fam_clip',
-        filename=fam_video_filename, movieLib='ffpyplayer',
+        filename=None, movieLib='ffpyplayer',
         loop=False, volume=1.0, noAudio=False,
         pos=(0, 0), size=(0.5, 0.5), units=win.units,
         ori=0.0, anchor='center',opacity=None, contrast=1.0,
-        depth=-1
+        depth=-2
     )
-    
-    # --- Initialize components for Routine "test" ---
     
     # --- Initialize components for Routine "thanks" ---
     textbox = visual.TextBox2(
@@ -579,7 +579,7 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         method='random', 
         extraInfo=expInfo, 
         originPath=-1, 
-        trialList=data.importConditions('lists/fam_high_certainty.csv'), 
+        trialList=data.importConditions('lists/fam_trials_list.csv'), 
         seed=None, 
     )
     thisExp.addLoop(fam_trial_loop)  # add the loop to the experiment
@@ -588,10 +588,16 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
     if thisFam_trial_loop != None:
         for paramName in thisFam_trial_loop:
             globals()[paramName] = thisFam_trial_loop[paramName]
+    if thisSession is not None:
+        # if running in a Session with a Liaison client, send data up to now
+        thisSession.sendExperimentData()
     
     for thisFam_trial_loop in fam_trial_loop:
         currentLoop = fam_trial_loop
         thisExp.timestampOnFlip(win, 'thisRow.t', format=globalClock.format)
+        if thisSession is not None:
+            # if running in a Session with a Liaison client, send data up to now
+            thisSession.sendExperimentData()
         # abbreviate parameter names if possible (e.g. rgb = thisFam_trial_loop.rgb)
         if thisFam_trial_loop != None:
             for paramName in thisFam_trial_loop:
@@ -607,6 +613,31 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         continueRoutine = True
         # update component parameters for each repeat
         fam_text.reset()
+        # Run 'Begin Routine' code from assign_confidence_object
+        import pandas as pd
+        
+        # Convert trialList to a pandas DataFrame
+        conditions = pd.DataFrame(fam_trial_loop.trialList)
+        
+        # Filter rows based on repetition
+        if rep_number == 0:
+            # First repetition: choose high-certainty objects (apple or cup)
+            filtered_conditions = conditions[conditions['is_high_confidence_object'] == 1]
+        #    print(f'Filtered Conditions 1: {filtered_conditions}')
+        else:
+            # Second repetition: choose low-certainty objects (nonsense1 or nonsense2)
+            filtered_conditions = conditions[conditions['is_high_confidence_object'] == 0]
+        #    print(f'Filtered Conditions 2: {filtered_conditions}')
+        
+        # Update the loop's trialList with the filtered conditions
+        fam_trial_loop.trialList = filtered_conditions.to_dict('records')
+        #print(f'Updated trial list: {fam_trial_loop.trialList}')
+        
+        print(f"Current video: {fam_trial_loop.thisTrial['fam_video_filename']}")
+        
+        # Increment repetition counter
+        rep_number += 1
+        fam_clip.setMovie(fam_video_filename)
         # store start times for fam
         fam.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
         fam.tStart = globalClock.getTime(format='float')
@@ -699,6 +730,8 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
                     fam_clip.status = FINISHED
                     fam_clip.setAutoDraw(False)
                     fam_clip.stop()
+            if fam_clip.isFinished:  # force-end the Routine
+                continueRoutine = False
             
             # check for quit (typically the Esc key)
             if defaultKeyboard.getKeys(keyList=["escape"]):
@@ -742,90 +775,13 @@ def run(expInfo, thisExp, win, globalClock=None, thisSession=None):
         fam_clip.stop()  # ensure movie has stopped at end of Routine
         # the Routine "fam" was not non-slip safe, so reset the non-slip timer
         routineTimer.reset()
+        thisExp.nextEntry()
+        
     # completed 2.0 repeats of 'fam_trial_loop'
     
-    
-    # --- Prepare to start Routine "test" ---
-    # create an object to store info about Routine test
-    test = data.Routine(
-        name='test',
-        components=[],
-    )
-    test.status = NOT_STARTED
-    continueRoutine = True
-    # update component parameters for each repeat
-    # store start times for test
-    test.tStartRefresh = win.getFutureFlipTime(clock=globalClock)
-    test.tStart = globalClock.getTime(format='float')
-    test.status = STARTED
-    thisExp.addData('test.started', test.tStart)
-    test.maxDuration = None
-    # keep track of which components have finished
-    testComponents = test.components
-    for thisComponent in test.components:
-        thisComponent.tStart = None
-        thisComponent.tStop = None
-        thisComponent.tStartRefresh = None
-        thisComponent.tStopRefresh = None
-        if hasattr(thisComponent, 'status'):
-            thisComponent.status = NOT_STARTED
-    # reset timers
-    t = 0
-    _timeToFirstFrame = win.getFutureFlipTime(clock="now")
-    frameN = -1
-    
-    # --- Run Routine "test" ---
-    test.forceEnded = routineForceEnded = not continueRoutine
-    while continueRoutine:
-        # get current time
-        t = routineTimer.getTime()
-        tThisFlip = win.getFutureFlipTime(clock=routineTimer)
-        tThisFlipGlobal = win.getFutureFlipTime(clock=None)
-        frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
-        # update/draw components on each frame
-        
-        # check for quit (typically the Esc key)
-        if defaultKeyboard.getKeys(keyList=["escape"]):
-            thisExp.status = FINISHED
-        if thisExp.status == FINISHED or endExpNow:
-            endExperiment(thisExp, win=win)
-            return
-        # pause experiment here if requested
-        if thisExp.status == PAUSED:
-            pauseExperiment(
-                thisExp=thisExp, 
-                win=win, 
-                timers=[routineTimer], 
-                playbackComponents=[]
-            )
-            # skip the frame we paused on
-            continue
-        
-        # check if all components have finished
-        if not continueRoutine:  # a component has requested a forced-end of Routine
-            test.forceEnded = routineForceEnded = True
-            break
-        continueRoutine = False  # will revert to True if at least one component still running
-        for thisComponent in test.components:
-            if hasattr(thisComponent, "status") and thisComponent.status != FINISHED:
-                continueRoutine = True
-                break  # at least one component has not yet finished
-        
-        # refresh the screen
-        if continueRoutine:  # don't flip if this routine is over or we'll get a blank screen
-            win.flip()
-    
-    # --- Ending Routine "test" ---
-    for thisComponent in test.components:
-        if hasattr(thisComponent, "setAutoDraw"):
-            thisComponent.setAutoDraw(False)
-    # store stop times for test
-    test.tStop = globalClock.getTime(format='float')
-    test.tStopRefresh = tThisFlipGlobal
-    thisExp.addData('test.stopped', test.tStop)
-    thisExp.nextEntry()
-    # the Routine "test" was not non-slip safe, so reset the non-slip timer
-    routineTimer.reset()
+    if thisSession is not None:
+        # if running in a Session with a Liaison client, send data up to now
+        thisSession.sendExperimentData()
     
     # --- Prepare to start Routine "thanks" ---
     # create an object to store info about Routine thanks
