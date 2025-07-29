@@ -1,4 +1,4 @@
-from psychopy import visual, core
+from psychopy import visual, core, event
 import os
 import pandas as pd
 from psychopy import data, hardware, logging, prefs, gui
@@ -14,7 +14,7 @@ PSYCHOPY_VERSION = "2024.2.4"
 EXPT_NAME = "DisjunctiveConclusion"
 EXPT_INFO = {
     "participant": f"{randint(0, 999999):06.0f}",
-    "age (yrs)": "",
+    "age_yrs_mnths": "",
     "date|hid": data.getDateStr(),
     "expName|hid": EXPT_NAME,
     "psychopyVersion|hid": PSYCHOPY_VERSION,
@@ -48,7 +48,7 @@ def setup_logging(filename):
     """
     # set how much information should be printed to the console / app
     log_file = logging.LogFile(filename + ".log")
-    logging.console.setLevel(logging.DEBUG)
+    logging.console.setLevel(logging.WARNING)
     log_file.setLevel(logging.getLevel(logging.DEBUG))
 
     return log_file
@@ -115,54 +115,87 @@ def run(exp_info, this_exp, win, global_clock=None):
     fam_trials(this_exp, win)
 
 
+def collect_response(trial_onset_time, key_list):
+    response = event.waitKeys(keyList=key_list)
+    if response:
+        return response[0], core.getTime() - trial_onset_time
+    else:
+        return "x", 0
+
+
 def fam_trials(this_exp, win):
     fam_conditions = data.importConditions("lists/fam_trials_list.csv")
     conditions = pd.DataFrame(fam_conditions)
-    rep_number = 0
 
-    # Create a trial handler for all trials
+    high_confidence_objects = conditions[conditions["is_high_confidence_object"] == 1]
+    low_confidence_objects = conditions[conditions["is_high_confidence_object"] == 0]
+
+    filtered_conditions = pd.concat(
+        [
+            high_confidence_objects.sample(n=1).reset_index(drop=True),
+            low_confidence_objects.sample(n=1).reset_index(drop=True),
+        ],
+        ignore_index=True,
+    )
+
     trial_handler = data.TrialHandler2(
-        trialList=conditions.to_dict("records"), nReps=2, method="sequential", seed=None
+        trialList=filtered_conditions.to_dict("records"),
+        nReps=1,
+        method="sequential",
+        seed=None,
     )
     this_exp.addLoop(trial_handler)
 
-    for _ in trial_handler:
-        if rep_number == 0:
-            filtered_conditions = conditions[conditions['is_high_confidence_object'] == 1]
-        else:
-            filtered_conditions = conditions[conditions['is_high_confidence_object'] == 0]
+    for trial_data in trial_handler:
 
-        # trial.trialList = filtered_conditions.to_dict('records')
-
-        # ITS PLAYING 4 TIMES -- fixx this!!!
-        
-        random_row = filtered_conditions.sample(n=1).iloc[0]
-        fam_video_filename = random_row["fam_video_filename"]
-
-        video = visual.MovieStim(
-            win, filename=fam_video_filename, movieLib='ffpyplayer',
-            loop=False, volume=1.0, noAudio=False,
-            pos=(0, 0), units=win.units,
-            ori=0.0, anchor='center', opacity=None, contrast=1.0,
+        fam_video_filename = trial_data["fam_video_filename"]
+        print(
+            f" ------------------- Current video: {fam_video_filename} ------------------- "
         )
-        print(f"Current video: {filtered_conditions['fam_video_filename']}")
-        video.play()
 
-        while not video.isFinished:
-            video.draw()
-            win.flip()
+        # video = visual.MovieStim(
+        #     win, filename=fam_video_filename, movieLib='ffpyplayer',
+        #     loop=False, volume=1.0, noAudio=False,
+        #     pos=(0, 0), units=win.units,
+        #     ori=0.0, anchor='center', opacity=None, contrast=1.0,
+        # )
+        # video.play()
 
-        video.stop()
-        video.unload()
-        # win.close()  # Do not close the window after each trial
-        rep_number += 1
+        # while not video.isFinished:
+        #     video.draw()
+        #     win.flip()
+
+        # video.stop()
+        # video.unload()
+
+        # TODO: replace key event with touch event on 1/2/3 STAR image on screen
+        trial_onset_time = core.getTime()
+        response, reaction_time = collect_response(trial_onset_time, ["1", "2", "3"])
+
+        # Save data
+        save_fam_data(trial_data, fam_video_filename, response, reaction_time)
+
+        core.wait(1.0) 
 
         this_exp.nextEntry()
 
-    this_exp.endLoop(trial_handler)
+def save_fam_data(trial_data, fam_video_filename, response, reaction_time):
+    # response_data = {
+    #         "participant_id": EXPT_INFO["participant"],
+    #         "age": EXPT_INFO["age_yrs_mnths"],
+    #         "fam_video_filename": fam_video_filename,
+    #         "is_high_confidence_object": trial_data["is_high_confidence_object"],
+    #         "child_response": response,
+    #         "rt": reaction_time,
+    #         "type": "familiarization",
+    #     }
+    
+    print(
+        f" ------------------- Response: {response}, Reaction Time: {reaction_time:.2f} seconds -------------------"
+    )
 
 
-EXPT_INFO = show_exp_info_dlg(EXPT_INFO)
+# EXPT_INFO = show_exp_info_dlg(EXPT_INFO)
 this_exp = setup_data(EXPT_INFO)
 log_file = setup_logging(__this_dir + os.sep + "logs" + os.sep + EXPT_NAME)
 win = setup_window(EXPT_INFO)
