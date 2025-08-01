@@ -1,0 +1,19 @@
+Color Layout,Empty Box Location,Trial Type
+BGR,left,impossible
+BGR,right,impossible
+RGB,left,impossible
+RGB,right,impossible
+GBR,left,impossible
+GBR,right,impossible
+BGR,left,guess
+BGR,right,guess
+RGB,left,guess
+RGB,right,guess
+GBR,left,guess
+GBR,right,guess
+BGR,left,correct-inference
+BGR,right,correct-inference
+RGB,left,correct-inference
+RGB,right,correct-inference
+GBR,left,correct-inference
+GBR,right,correct-inference

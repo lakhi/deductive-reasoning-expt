@@ -33,19 +33,6 @@ def show_exp_info_dlg(exp_info):
 
 
 def setup_logging(filename):
-    """
-    Setup a log file and tell it what level to log at.
-
-    Parameters
-    ==========
-    filename : str or pathlib.Path
-        Filename to save log file and data files as, doesn't need an extension.
-
-    Returns
-    ==========
-    psychopy.logging.LogFile
-        Text stream to receive inputs from the logging system.
-    """
     # set how much information should be printed to the console / app
     log_file = logging.LogFile(filename + ".log")
     logging.console.setLevel(logging.WARNING)
@@ -113,6 +100,7 @@ def setup_window(exp_info):
 
 def run(exp_info, this_exp, win, global_clock=None):
     fam_trials(this_exp, win)
+    test_trials(this_exp, win)
 
 
 def collect_response(trial_onset_time, key_list):
@@ -120,7 +108,7 @@ def collect_response(trial_onset_time, key_list):
     if response:
         return response[0], core.getTime() - trial_onset_time
     else:
-        return "x", 0
+        return None, 0
 
 
 def fam_trials(this_exp, win):
@@ -178,6 +166,12 @@ def fam_trials(this_exp, win):
         core.wait(1.0) 
 
         this_exp.nextEntry()
+
+def test_trials(this_exp, win):
+    # Placeholder for test trials
+    # This function can be implemented similarly to fam_trials
+    print("Test trials are not yet implemented.")
+    
 
 def save_fam_data(trial_data, fam_video_filename, response, reaction_time):
     # response_data = {
