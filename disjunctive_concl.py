@@ -4,6 +4,14 @@ import pandas as pd
 from psychopy import data, hardware, logging, prefs, gui
 from random import randint
 from psychopy.constants import priority
+from enum import Enum
+
+
+class TrialType(Enum):
+    IMPOSSIBLE = "impossible"
+    GUESS = "guess"
+    CORRECT_INF = "correct-inf"
+
 
 # --- Setup global variables (available in all functions) ---
 # device_manager = hardware.DeviceManager()
@@ -163,15 +171,105 @@ def fam_trials(this_exp, win):
         # Save data
         save_fam_data(trial_data, fam_video_filename, response, reaction_time)
 
-        core.wait(1.0) 
+        core.wait(1.0)
 
         this_exp.nextEntry()
 
+""" FIX THE FOLLOWING ERROR!
+Traceback (most recent call last):
+  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 277, in <module>
+    run(EXPT_INFO, this_exp, win, global_clock="float")
+  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 111, in run
+    test_trials(this_exp, win)
+  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 193, in test_trials
+    impossible_condition_rows.sample(n=1).reset_index(drop=True),
+  File "/Applications/PsychoPy.app/Contents/Resources/lib/python3.10/pandas/core/generic.py", line 6118, in sample
+    sampled_indices = sample.sample(obj_len, size, replace, weights, rs)
+  File "/Applications/PsychoPy.app/Contents/Resources/lib/python3.10/pandas/core/sample.py", line 152, in sample
+    return random_state.choice(obj_len, size=size, replace=replace, p=weights).astype(
+  File "numpy/random/mtrand.pyx", line 945, in numpy.random.mtrand.RandomState.choice
+ValueError: a must be greater than 0 unless no samples are taken
+################ Experiment ended with exit code 1 [pid:46371] #################
+
+"""
+
+
 def test_trials(this_exp, win):
-    # Placeholder for test trials
-    # This function can be implemented similarly to fam_trials
-    print("Test trials are not yet implemented.")
-    
+    trial_conditions = data.importConditions("lists/trial-conditions.csv")
+    conditions = pd.DataFrame(trial_conditions)
+
+    impossible_condition_rows = conditions[
+        conditions["trial_type"] == TrialType.IMPOSSIBLE.value
+    ]
+    guess_condition_rows = conditions[conditions["trial_type"] == TrialType.GUESS.value]
+    correct_inf_condition_rows = conditions[
+        conditions["trial_type"] == TrialType.CORRECT_INF.value
+    ]
+
+    filtered_conditions = pd.concat(
+        [
+            impossible_condition_rows.sample(n=1).reset_index(drop=True),
+            guess_condition_rows.sample(n=1).reset_index(drop=True),
+            correct_inf_condition_rows.sample(n=1).reset_index(drop=True),
+        ],
+        ignore_index=True,
+    )
+
+    # Shuffle the order of the conditions
+    filtered_conditions = filtered_conditions.sample(frac=1).reset_index(drop=True)
+
+    trial_handler = data.TrialHandler2(
+        trialList=filtered_conditions.to_dict("records"),
+        nReps=1,
+        method="sequential",
+        seed=None,
+    )
+    this_exp.addLoop(trial_handler)
+
+    for trial_data in trial_handler:
+
+        fam_video_filename = trial_data["filename"]
+        print(
+            f" ------------------- Current video: {fam_video_filename} ------------------- "
+        )
+
+        # video = visual.MovieStim(
+        #     win, filename=fam_video_filename, movieLib='ffpyplayer',
+        #     loop=False, volume=1.0, noAudio=False,
+        #     pos=(0, 0), units=win.units,
+        #     ori=0.0, anchor='center', opacity=None, contrast=1.0,
+        # )
+        # video.play()
+
+        # while not video.isFinished:
+        #     video.draw()
+        #     win.flip()
+
+        # video.stop()
+        # video.unload()
+
+        # ACCURACY MEAUSREMENT
+        # TODO: replace key event with touch event Y/N image on screen
+        trial_onset_time = core.getTime()
+        response, reaction_time = collect_response(trial_onset_time, ["Y", "N"])
+
+        # Save trial data
+        save_fam_data(trial_data, fam_video_filename, response, reaction_time)
+
+        core.wait(1.0)
+
+        # CONFIDENCE MEAUSREMENT
+        # TODO: replace key event with touch event on 1/2/3 STAR image on screen
+        trial_onset_time = core.getTime()
+        response, reaction_time = collect_response(trial_onset_time, ["1", "2", "3"])
+
+        # Save trial data
+        save_fam_data(trial_data, fam_video_filename, response, reaction_time)
+
+        core.wait(1.0)
+
+        this_exp.nextEntry()
+
 
 def save_fam_data(trial_data, fam_video_filename, response, reaction_time):
     # response_data = {
@@ -183,7 +281,7 @@ def save_fam_data(trial_data, fam_video_filename, response, reaction_time):
     #         "rt": reaction_time,
     #         "type": "familiarization",
     #     }
-    
+
     print(
         f" ------------------- Response: {response}, Reaction Time: {reaction_time:.2f} seconds -------------------"
     )
