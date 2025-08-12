@@ -6,7 +6,7 @@ import pandas as pd
 factors = {
     "color_layout": (["BGR", "RGB", "GBR"], "within"),
     "empty_box_location": (["left", "right"], "within"),
-    "trial_type": (["IMPOSSIBLE", "GUESS", "CORRECT-INF"], "between")
+    "trial_type": (["impossible", "guess", "correct-inf"], "between")
 }
 
 # Separate within- and between-subject factors

@@ -146,7 +146,7 @@ def fam_trials(this_exp, win):
 
         fam_video_filename = trial_data["fam_video_filename"]
         print(
-            f" ------------------- Current video: {fam_video_filename} ------------------- "
+            f" ------------------- Current FAM video: {fam_video_filename} ------------------- "
         )
 
         # video = visual.MovieStim(
@@ -165,6 +165,9 @@ def fam_trials(this_exp, win):
         # video.unload()
 
         # TODO: replace key event with touch event on 1/2/3 STAR image on screen
+        print(
+            " ------------------- PRESS 1/2/3 ------------------- "
+        )
         trial_onset_time = core.getTime()
         response, reaction_time = collect_response(trial_onset_time, ["1", "2", "3"])
 
@@ -174,25 +177,6 @@ def fam_trials(this_exp, win):
         core.wait(1.0)
 
         this_exp.nextEntry()
-
-""" FIX THE FOLLOWING ERROR!
-Traceback (most recent call last):
-  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 277, in <module>
-    run(EXPT_INFO, this_exp, win, global_clock="float")
-  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 111, in run
-    test_trials(this_exp, win)
-  File "/Users/lakhi/Developer/MEiCogSci/deductive-reasoning-expt/disjunctive_concl.py", line 193, in test_trials
-    impossible_condition_rows.sample(n=1).reset_index(drop=True),
-  File "/Applications/PsychoPy.app/Contents/Resources/lib/python3.10/pandas/core/generic.py", line 6118, in sample
-    sampled_indices = sample.sample(obj_len, size, replace, weights, rs)
-  File "/Applications/PsychoPy.app/Contents/Resources/lib/python3.10/pandas/core/sample.py", line 152, in sample
-    return random_state.choice(obj_len, size=size, replace=replace, p=weights).astype(
-  File "numpy/random/mtrand.pyx", line 945, in numpy.random.mtrand.RandomState.choice
-ValueError: a must be greater than 0 unless no samples are taken
-################ Experiment ended with exit code 1 [pid:46371] #################
-
-"""
-
 
 def test_trials(this_exp, win):
     trial_conditions = data.importConditions("lists/trial-conditions.csv")
@@ -230,7 +214,7 @@ def test_trials(this_exp, win):
 
         fam_video_filename = trial_data["filename"]
         print(
-            f" ------------------- Current video: {fam_video_filename} ------------------- "
+            f" ------------------- Current TRIAL video: {fam_video_filename} ------------------- "
         )
 
         # video = visual.MovieStim(
@@ -249,9 +233,13 @@ def test_trials(this_exp, win):
         # video.unload()
 
         # ACCURACY MEAUSREMENT
+        print(
+            " ------------------- PRESS y/n ------------------- "
+        )
+
         # TODO: replace key event with touch event Y/N image on screen
         trial_onset_time = core.getTime()
-        response, reaction_time = collect_response(trial_onset_time, ["Y", "N"])
+        response, reaction_time = collect_response(trial_onset_time, ["y", "n"])
 
         # Save trial data
         save_fam_data(trial_data, fam_video_filename, response, reaction_time)
@@ -259,6 +247,10 @@ def test_trials(this_exp, win):
         core.wait(1.0)
 
         # CONFIDENCE MEAUSREMENT
+        print(
+            " ------------------- PRESS 1/2/3 ------------------- "
+        )
+
         # TODO: replace key event with touch event on 1/2/3 STAR image on screen
         trial_onset_time = core.getTime()
         response, reaction_time = collect_response(trial_onset_time, ["1", "2", "3"])
