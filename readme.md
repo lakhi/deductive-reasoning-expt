@@ -1,6 +1,7 @@
 # Deductive Reasoning Experiment
 
-A PsychoPy-based psychological experiment investigating deductive reasoning abilities through visual stimuli and response collection.
+A PsychoPy-based psychological experiment investigating deductive reasoning abilities based on the experiment:
+https://journals.phl.univie.ac.at/meicogsci/article/view/899
 
 ## Overview
 
