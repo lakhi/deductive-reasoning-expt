@@ -53,7 +53,7 @@ def show_exp_info_dlg(exp_info):
     )
     if dlg.OK == False:
         core.quit()  # user pressed cancel
-    
+
     return exp_info
 
 
@@ -91,7 +91,7 @@ def save_to_csv(data, filename):
     """Generic CSV saving function."""
     create_data_directory()
     df = pd.DataFrame([data])
-    
+
     if os.path.exists(filename):
         df.to_csv(filename, mode="a", header=False, index=False)
     else:
@@ -102,7 +102,7 @@ def save_all_data_to_csv(data_list, filename):
     """Save all data from list to CSV in one operation."""
     create_data_directory()
     df = pd.DataFrame(data_list)
-    
+
     if os.path.exists(filename):
         df.to_csv(filename, mode="a", header=False, index=False)
     else:
@@ -182,40 +182,46 @@ def run(this_exp, win):
 def collect_response(key_list: list, timeout: float = None) -> tuple:
     """
     Collect keyboard response from participant.
-    
+
     Args:
         key_list: List of valid response keys
         timeout: Maximum wait time in seconds (None for no timeout)
-        
+
     Returns:
         tuple: (response_key, reaction_time) or (None, 0) if no response
     """
     trial_onset_time = core.getTime()
-    
+
     if timeout is None:
         response = event.waitKeys(keyList=key_list)
     else:
         response = event.waitKeys(keyList=key_list, maxWait=timeout)
-    
+
     if response:
         return response[0], core.getTime() - trial_onset_time
     return None, 0
 
 
-def filter_and_sample_conditions(conditions_df: pd.DataFrame, filter_dict: dict, n_samples: int = 1) -> pd.DataFrame:
+def filter_and_sample_conditions(
+    conditions_df: pd.DataFrame, filter_dict: dict, n_samples: int = 1
+) -> pd.DataFrame:
     """Filter conditions and sample n rows."""
     filtered = conditions_df.copy()
-    
+
     for key, value in filter_dict.items():
         filtered = filtered[filtered[key] == value]
-    
+
     if len(filtered) < n_samples:
-        raise ValueError(f"Not enough rows matching filter criteria. Found {len(filtered)}, need {n_samples}")
-    
+        raise ValueError(
+            f"Not enough rows matching filter criteria. Found {len(filtered)}, need {n_samples}"
+        )
+
     return filtered.sample(n=n_samples).reset_index(drop=True)
 
 
-def create_trial_handler(conditions: pd.DataFrame, experiment_handler) -> data.TrialHandler2:
+def create_trial_handler(
+    conditions: pd.DataFrame, experiment_handler
+) -> data.TrialHandler2:
     """Create and register trial handler."""
     trial_handler = data.TrialHandler2(
         trialList=conditions.to_dict("records"),
