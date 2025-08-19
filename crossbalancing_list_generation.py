@@ -4,9 +4,10 @@ import pandas as pd
 # Define the experimental design
 # Each key is a factor, and the value is a tuple: (list of levels, 'within' or 'between')
 factors = {
-    "color_layout": (["BGR", "RGB", "GBR"], "within"),
+    "color_layout": (["BRG", "RGB", "GBR"], "within"),
+    "trial_type": (["impossible", "guess", "correct-inf"], "between"),
     "empty_box_location": (["left", "right"], "within"),
-    "trial_type": (["impossible", "guess", "correct-inf"], "between")
+    "open_box_color": (["red", "green", "blue"], "within"),
 }
 
 # Separate within- and between-subject factors
@@ -26,7 +27,7 @@ for between_combination in itertools.product(*between_factors.values()):
     for combo in within_combinations:
         row = dict(zip(within_keys, combo))
         row.update(between_dict)
-        row["filename"] = f'videoclip_{filename_placeholder}.mp4'
+        row["filename"] = f'{row["color_layout"]}_Yellow-{row["empty_box_location"]}_OpenBox-{row["open_box_color"]}_{row["trial_type"]}.mov'
         filename_placeholder += 1
         condition_rows.append(row)
 
