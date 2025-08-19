@@ -1,7 +1,6 @@
 # -- own gitignore file for the deductive reasoning experiment --
 data/
 video_stimuli/
-numerosityComp_munther/
 psychopy_env/
 logs/
 
